@@ -46,6 +46,7 @@ class Frame:
     def __init__(self, name: str, *facets: "Facet"):
         self.name = name
         self.facets = list(facets)
+        global frame_u
         frame_u.append(self)
 
     def matches(self, frame: "Frame"):
