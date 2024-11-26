@@ -48,7 +48,7 @@ class StringValueFacet(Facet):
         else:
             super().__init__(name, StringValue(literal))
 
-class RelationValueFacet(Facet):
+class FrameValueFacet(Facet):
     def __init__(self, name, literal):
         if not(isinstance(literal, Frame)):
             super().__init__(name, literal)
