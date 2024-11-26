@@ -4,22 +4,18 @@ from copy import deepcopy
 frame_u = []
 
 class Value:
-    def __init__(self, literal = None):
+    def __init__(self, literal = None, type: str = None):
         self.literal = literal if literal is not None else None
+        self.type = type if type is not None else ""
 
     def matches(self, value: "Value"):
-        return value.matches_fallback(self)
-
-    def matches_fallback(self, value):
-        # if not isinstance(value, self.__class__):
-        #     raise ValueError("Cannot compare disparate types")
         return self.get() == value.get()
 
     def get(self):
         return self.literal
 
     def __str__(self):
-        return str(self.get())
+        return f"{self.type} {self.get()}"
 
     def __repr__(self):
         if isinstance(self.literal, str):

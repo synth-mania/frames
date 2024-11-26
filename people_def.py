@@ -1,10 +1,10 @@
 from core import *
 from std_def import *
 
-class Age(Facet):
+class Age(NumValueFacet):
     def __init__(self, literal):
-        super().__init__("Age", Value(literal))
+        super().__init__("Age", literal)
 
-class Sex(Facet):
+class Sex(StringValueFacet):
     def __init__(self, literal):
-        super().__init__("Sex", Value(literal))
+        super().__init__("Sex", literal)
