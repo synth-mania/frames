@@ -15,7 +15,7 @@ class Value:
         return self.literal
 
     def __str__(self):
-        return f"{self.type} {self.get()}"
+        return f"{'{'}{self.type} {self.get()}{'}'}"
 
     def __repr__(self):
         if isinstance(self.literal, str):
@@ -107,6 +107,18 @@ def r(n):
     print(n.__repr__())
     return n.__repr__()
 
+class IntersectionValue(Value):
+    def __init__(self, *values: Value):
+        super().__init__(values, type = "Intersection")
+    
+    def matches(self, value: Value):
+        for sub_value in self.literal:
+            if not sub_value.matches(value):
+                return False
+        return True
+    
+    def __str__(self):
+        return f"{'{'}{self.type} {" ".join(str(value) for value in self.get())}{'}'}"
 
 class AnyValue(Value):
     def matches(self, value: "Value"):
@@ -130,6 +142,9 @@ class NumGreaterThanValue(NumValue):
         return value.get() > self.get()
 
 class NumLessThanValue(NumValue):
+    def __init__(self, literal):
+        super().__init__(literal, "NumLessThan")
+
     def matches(self, value: "NumValue"):
         if not isinstance(value, NumValue):
             raise ValueError("NumGreaterThanValue can only be applied to NumValue types")
