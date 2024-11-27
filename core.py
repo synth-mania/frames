@@ -139,9 +139,15 @@ class NotValue(Value):
         super().__init__(value, type = "Not")
     
     def matches(self, value: Value):
-        return not self.get().matches(value)
+        return not self.literal.matches(value)
     
 class AnyValue(Value):
+    def __init__(self):
+        super().__init__(type="Any")
+    
+    def __str__(self):
+        return "{Any}"
+
     def matches(self, value: "Value"):
         return True
 
