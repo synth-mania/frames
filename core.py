@@ -107,19 +107,33 @@ def r(n):
     print(n.__repr__())
     return n.__repr__()
 
-class IntersectionValue(Value):
-    def __init__(self, *values: Value):
-        super().__init__(values, type = "Intersection")
-    
-    def matches(self, value: Value):
-        for sub_value in self.literal:
-            if not sub_value.matches(value):
-                return False
-        return True
+class SetValue(Value):
+    def __init__(self, *values: Value, type = "Set"):
+        super().__init__(values, type = type)
     
     def __str__(self):
         return f"{'{'}{self.type} {" ".join(str(value) for value in self.get())}{'}'}"
 
+class UnionValue(SetValue):
+    def __init__(self, *values: Value):
+        super().__init__(*values, type = "Union")
+    
+    def matches(self, value: Value):
+        for sub_value in self.get():
+            if sub_value.matches(value):
+                return True
+        return False
+    
+class IntersectionValue(SetValue):
+    def __init__(self, *values: Value):
+        super().__init__(*values, type = "Intersection")
+    
+    def matches(self, value: Value):
+        for sub_value in self.get():
+            if not sub_value.matches(value):
+                return False
+        return True
+    
 class AnyValue(Value):
     def matches(self, value: "Value"):
         return True
