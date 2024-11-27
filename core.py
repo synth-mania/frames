@@ -133,6 +133,13 @@ class IntersectionValue(SetValue):
             if not sub_value.matches(value):
                 return False
         return True
+
+class NotValue(Value):
+    def __init__(self, value: Value):
+        super().__init__(value, type = "Not")
+    
+    def matches(self, value: Value):
+        return not self.get().matches(value)
     
 class AnyValue(Value):
     def matches(self, value: "Value"):
