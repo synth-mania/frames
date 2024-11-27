@@ -55,10 +55,12 @@ class Frame:
         :param frame:
         :return:
         """
+        print(f"match {self} -> {frame}")
+
         for my_facet in self.facets:
             for other_facet in frame.facets:
                 if other_facet.name == my_facet.name:
-                    print(f"{my_facet} matches {other_facet}?")
+                    print(f"{my_facet} matches {other_facet}? ", end = "")
                     if not my_facet.matches(other_facet):
                         print("no")
                         return False
@@ -71,6 +73,13 @@ class Frame:
 
     def add(self, facet: Facet):
         self.facets.append(facet)
+    
+    def get_value(self, facet_name: str):
+        values = []
+        for facet in self.facets:
+            if facet.name == facet_name:
+                values.append(facet.value)
+        return values
 
     def __str__(self):
         return f"({self.name})"
@@ -99,6 +108,62 @@ def r(n):
     return n.__repr__()
 
 
+class AnyValue(Value):
+    def matches(self, value: "Value"):
+        return True
+
+class StringValue(Value):
+    def __init__(self, literal, type="String"):
+        super().__init__(literal, type)
+
+class NumValue(Value):
+    def __init__(self, literal, type = "num"):
+        super().__init__(literal, type)
+
+class NumGreaterThanValue(NumValue):
+    def __init__(self, literal):
+        super().__init__(literal, "NumGreaterThan")
+
+    def matches(self, value: "NumValue"):
+        if not isinstance(value, NumValue):
+            raise ValueError("NumGreaterThanValue can only be applied to NumValue types")
+        return value.get() > self.get()
+
+class NumLessThanValue(NumValue):
+    def matches(self, value: "NumValue"):
+        if not isinstance(value, NumValue):
+            raise ValueError("NumGreaterThanValue can only be applied to NumValue types")
+        return value.get() < self.get()
+
+class FrameValue(Value):
+    def __init__(self, literal: Frame, type = "Relation"):
+        super().__init__(literal, type)
+
+    def matches(self, value: "FrameValue"):
+        return self.get() is value.get()
+
+class NumValueFacet(Facet):
+    def __init__(self, name, literal):
+        if not(isinstance(literal, float) or isinstance(literal, int)):
+            super().__init__(name, literal)
+        else:
+            super().__init__(name, NumValue(literal))
+
+class StringValueFacet(Facet):
+    def __init__(self, name, literal):
+        if not(isinstance(literal, str)):
+            super().__init__(name, literal)
+        else:
+            super().__init__(name, StringValue(literal))
+
+class FrameValueFacet(Facet):
+    def __init__(self, name, literal):
+        if not(isinstance(literal, Frame)):
+            super().__init__(name, literal)
+        else:
+            super().__init__(name, FrameValue(literal))
+
+
 def find_matching_rules(frame: Frame, rules: list) -> list:
     """
     Find all rules that have a trigger matching the given frame.
@@ -125,7 +190,10 @@ def apply_effects(matching_rules: list, frame: Frame):
     for rule in matching_rules:
         print(f"Applying effect from Rule {rule} to Frame {frame}")
         for facet in rule.effect.facets:
-            frame.add(Facet(name=facet.name, value=deepcopy(facet.value)))
+            if isinstance(facet, FrameValueFacet):
+                frame.add(Facet(name=facet.name, value=facet.value))
+            else:
+                frame.add(Facet(name=facet.name, value=deepcopy(facet.value)))
 
 
 def infer(frame: Frame, rules: list):
